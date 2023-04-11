@@ -1,0 +1,88 @@
+/* CSS code for signup page */
+body {
+    background-color: #f8f8f8;
+    font-family: 'Pacifico', cursive;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow-y: auto; /* Allow body to scroll anywhere on the page */
+}
+
+.signup-box {
+    width: 400px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 400px;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    clear: both;
+    font-family: 'Dancing Script', cursive;
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff0066;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-family: 'Caveat', cursive;
+    font-size: 24px;
+    color: #ff0066;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="file"] {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 18px;
+    font-family: 'Amatic SC', cursive;
+}
+
+input[type="submit"] {
+    background-color: #ff0066;
+    color: #ffffff;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 24px;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    input[type="submit"]:hover {
+        background-color: #cc0052;
+    }
+
+p {
+    margin-top: 20px;
+    font-size: 16px;
+    text-align: center;
+    font-family: 'Shadows Into Light', cursive;
+}
+
+a {
+    color: #ff0066;
+    text-decoration: none;
+}
+
+    a:hover {
+        color: #cc0052;
+    }

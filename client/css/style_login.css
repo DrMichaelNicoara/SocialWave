@@ -1,0 +1,92 @@
+/* CSS code for login box */
+body {
+    background-color: #f8f8f8;
+    font-family: 'Pacifico', cursive; /* Update font to Pacifico */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-box {
+    width: 400px; /* Increase the width of the login box */
+    margin: 0 auto; /* Center the login box horizontally */
+    padding: 20px;
+    background-color: #ffffff; /* Set the background color of the login box */
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow effect */
+}
+
+h1 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px; /* Add margin bottom to create space between login title and boxes */
+    clear: both; /* Add clear property to ensure it clears any floats */
+    font-family: 'Dancing Script', cursive; /* Update font to Dancing Script */
+    font-size: 48px; /* Update font size */
+    font-weight: bold; /* Update font weight */
+}
+
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-family: 'Caveat', cursive; /* Update font to Caveat */
+    font-size: 20px; /* Update font size */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: 'Amatic SC', cursive; /* Update font to Amatic SC */
+    font-size: 24px; /* Update font size */
+}
+
+input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-family: 'Luckiest Guy', cursive; /* Update font to Luckiest Guy */
+    font-size: 28px; /* Update font size */
+    font-weight: bold; /* Update font weight */
+}
+
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+p {
+    text-align: center;
+    margin-top: 10px;
+    font-family: 'Permanent Marker', cursive; /* Update font to Permanent Marker */
+    font-size: 20px; /* Update font size */
+}
+
+a {
+    color: #007bff;
+    font-family: 'Shadows Into Light', cursive; /* Update font to Shadows Into Light */
+    font-size: 20px; /* Update font size */
+}
+
+.login-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #F8EFEF;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.5;
+    z-index: -1;
+}
