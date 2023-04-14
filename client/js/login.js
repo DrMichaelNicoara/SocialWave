@@ -1,14 +1,9 @@
-// Import Vue-Sweetalert2 plugin
-import VueSweetalert2 from '../node_modules/vue-sweetalert2';
-
-// Register Vue-Sweetalert2 plugin
-Vue.use(VueSweetalert2);
-
 new Vue({
     el: '#app',
     data: {
         username: '',
-        password: ''
+        password: '',
+        showError: false
     },
     methods: {
         login() {
@@ -18,25 +13,28 @@ new Vue({
                 password: this.password
             })
                 .then(response => {
-                    this.$swal({
-                        title: 'Error',
-                        text: 'Failed to login. Internal Server Error.',
-                        type: 'error',
-                        confirmButtonText: 'OK'
-                    });
+                    console.log(response);
                     // Handle the response from the server
-                    if (response.data.success === true) {
+                    if (response.data.error === '') {
                         // Redirect to home page if login is successful
                         window.location.href = 'home.html';
-                    } else {
-                        console.log("USER DOESN'T EXIST");
+                    } else if (response.data.error === "User doesn't exist") {
+                        // Highlight inputs
+                        this.showError = true;
+                        setTimeout(() => {
+                            this.showError = false;
+                        }, 2000);
+                    }
+                    else {
+                        // Server Error
+                        throw new Error(response.data.error);
                     }
                 })
                 .catch(error => {
-                    // Handle error by showing in a MessageBox
-                    this.$swal({
+                    // Handle error by showing in a popup
+                    Swal.fire({
                         title: 'Error',
-                        text: 'Failed to login. Internal Server Error.',
+                        text: error.message,
                         type: 'error',
                         confirmButtonText: 'OK'
                     });

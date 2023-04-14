@@ -11,31 +11,35 @@
 <body>
     <div class="signup-box">
         <h1>Sign Up</h1>
-        <form>
-            <label for="profile-pic">Profile Picture</label>
-            <input type="file" id="profile-pic" name="profile-pic" accept="image/*">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first-name" required>
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last-name" required>
+        <div id="errorMessage"></div>
+        <form @submit.prevent="submitForm">
+            <label for="profilePic">Profile Picture</label>
+            <input type="file" v-model="profilePic" id="profilePic" name="profilePic" accept=".jpg, .jpeg, .png">
+            <label for="firstName">First Name</label>
+            <input type="text" v-model="firstName" id="firstName" name="firstName" :class="{'error': errors.firstName}" required>
+            <label for="lastName">Last Name</label>
+            <input type="text" v-model="lastName" id="lastName" name="lastName" :class="{'error': errors.lastName}" required>
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" v-model="email" id="email" name="email" :class="{'error': errors.email}" required>
             <label for="address">Address</label>
-            <input type="text" id="address" name="address" required>
-            <label for="phone-number">Phone Number</label>
-            <input type="tel" id="phone-number" name="phone-number" required>
+            <input type="text" v-model="address" id="address" name="address" :class="{'error': errors.address}" required>
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" v-model="phoneNumber" id="phoneNumber" name="phoneNumber" :class="{'error': errors.phoneNumber}" required>
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" v-model="username" id="username" name="username" :class="{'error': errors.username}" required>
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
-            <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" name="confirm-password" required>
+            <input type="password" v-model="password" id="password" name="password" :class="{'error': errors.password}" required>
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" v-model="confirmPassword" id="confirmPassword" name="confirmPassword" :class="{'error': errors.password}" required>
             <input type="submit" value="Sign Up">
         </form>
         <p>Already have an account? <a href="index.html">Log In</a></p>
     </div>
     <script type="text/javascript" src="libs/vue.js"></script>
     <script type="text/javascript" src="libs/axios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-sweetalert2"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.js"></script>
     <script type="text/javascript" src="js/signup.js"></script>
 </body>
 

@@ -53,7 +53,7 @@ input[type="file"] {
     border-radius: 3px;
     border: 1px solid #ccc;
     font-size: 18px;
-    font-family: 'Amatic SC', cursive;
+    font-family: 'Dongle', cursive;
 }
 
 input[type="submit"] {
@@ -67,9 +67,9 @@ input[type="submit"] {
     transition: background-color 0.3s ease;
 }
 
-    input[type="submit"]:hover {
-        background-color: #cc0052;
-    }
+input[type="submit"]:hover {
+    background-color: #cc0052;
+}
 
 p {
     margin-top: 20px;
@@ -83,6 +83,19 @@ a {
     text-decoration: none;
 }
 
-    a:hover {
-        color: #cc0052;
-    }
+a:hover {
+    color: #cc0052;
+}
+
+#errorMessage {
+    font-size: 18px;
+    font-family: 'Dongle', cursive;
+    font-weight: bold;
+    background-color: #ddffff;
+    color: #ff0000;
+    margin-bottom: 10px;
+}
+
+.error {
+    border: 1px solid red !important;
+}

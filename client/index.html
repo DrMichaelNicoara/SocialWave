@@ -11,16 +11,18 @@
         <h1>Login</h1>
         <form @submit.prevent="login">
             <label for="username">Username</label>
-            <input type="text" id="username" v-model="username" placeholder="Enter your username">
+            <input type="text" id="username" v-model="username" :class="{ 'error': showError }" placeholder="Enter your username">
             <label for="password">Password</label>
-            <input type="password" id="password" v-model="password" placeholder="Enter your password">
+            <input type="password" id="password" v-model="password" :class="{ 'error': showError }" placeholder="Enter your password">
             <input type="submit" value="Login">
         </form>
         <p>Don't have an account? <a href="signup.html">Sign up</a></p>
     </div>
     <script type="text/javascript" src="libs/vue.js"></script>
     <script type="text/javascript" src="libs/axios.js"></script>
-    <script type="module" src="js/login.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-sweetalert2"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.js"></script>
+    <script type="module" src="js/login.js"></script>
 </body>
 </html>
