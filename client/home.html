@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SocialWave</title>
+    <link rel="stylesheet" href="css/style_home.css">
+</head>
+<body>
+    <div class="title-section">
+        <img src="resources/logo.png" alt="SocialWave Logo" class="logo-image">
+        <a href="index.html" class="logout-btn">Log Out</a>
+    </div>
+    <div class="container" id="app">
+        <div class="left-section">
+            <!-- Button to go to profile.html -->
+            <a href="profile.html" class="profile-btn">My Profile</a>
+            <!-- Dropdown for Following -->
+            <button class="dropdown-btn" @click="toggleFollowing">Following</button>
+            <div class="dropdown-content" v-show="showFollowing">
+                <!-- Dropdown items for Following -->
+                <a v-for="user in following" :href=`profile.html?userId=${user.Id}` :key="user.id">{{ user.username }}</a>
+            </div>
+            <!-- Dropdown for Followers -->
+            <button class="dropdown-btn" @click="toggleFollowers">Followers</button>
+            <div class="dropdown-content" v-show="showFollowers">
+                <!-- Dropdown items for Followers -->
+                <a v-for="user in followers" :href=`profile.html?userId=${user.Id}` :key="user.id">{{ user.username }}</a>
+            </div>
+        </div>
+        <div class="middle-section">
+            <div class="post-feed">
+                <div class="post-block">
+                    <div class="post-arrow-section">
+                        <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow">
+                        <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180">
+                    </div>
+                    <div class="post-content-section">
+                        <div class="post-user-section">
+                            <div class="post-user-avatar">
+                                <img class="avatar-img" src="resources/ME.jpg" alt="User Avatar">
+                            </div>
+                            <div class="post-details">
+                                <div class="post-user-details">
+                                    <h4>User Name</h4>
+                                    <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow">{{ FollowButtonText }}</button>
+                                </div>
+                                <div class="post-date-section">
+                                    <p>Published on 2023/04/15 16:42</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-title-section">
+                            <h2>Post Title</h2>
+                        </div>
+                        <div class="post-content">
+                            <p class="post-text">Just had the most amazing hike to the top of Mount Everest! The view from the summit is breathtaking. #adventures #hiking #mountainclimbing #naturelovers</p>
+                        </div>
+                        <div class="post-image-section">
+                            <img class="post-image" src="resources/motorcycle.jpg" alt="Post Image">
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more post blocks as needed -->
+            </div>
+        </div>
+        <div class="right-section">
+            <div class="notification-blocks">
+                <div class="notification-block">
+                    <h3>Notification 1</h3>
+                    <p>Notification 1 content</p>
+                </div>
+                <div class="notification-block">
+                    <h3>Notification 2</h3>
+                    <p>Notification 2 content</p>
+                </div>
+                <div class="notification-block">
+                    <h3>Notification 3</h3>
+                    <p>Notification 3 content</p>
+                </div>
+                <!-- Add more notification blocks as needed -->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="libs/vue.js"></script>
+    <script type="text/javascript" src="libs/axios.js"></script>
+    <script type="text/javascript" src="js/home.js"></script>
+</body>
+</html>

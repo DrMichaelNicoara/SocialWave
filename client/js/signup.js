@@ -54,7 +54,7 @@ var app = new Vue({
                 .then(response => {
                     if (response.data.error === '') {
                         // If error is empty, change page to home.html
-                        window.location.href = 'home.html';
+                        window.location.href = `home.html?userId=${response.data.userId}`;
                     } else {
                         const errorMessages = response.data.error.split(', ');
                         document.getElementById('errorMessage').textContent = errorMessages.join("\n");

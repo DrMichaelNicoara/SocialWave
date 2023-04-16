@@ -13,11 +13,10 @@ new Vue({
                 password: this.password
             })
                 .then(response => {
-                    console.log(response);
                     // Handle the response from the server
                     if (response.data.error === '') {
                         // Redirect to home page if login is successful
-                        window.location.href = 'home.html';
+                        window.location.href = `home.html?userId=${response.data.userId}`;
                     } else if (response.data.error === "User doesn't exist") {
                         // Highlight inputs
                         this.showError = true;
