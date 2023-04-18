@@ -7,7 +7,8 @@ var app = new Vue({
         showFollowing: false, // Initialize showFollowing to false
         showFollowers: false, // Initialize showFollowers to false
         isFollowed: false,
-        FollowButtonText: "Follow"
+        FollowButtonText: "Follow",
+        posts: null
     },
     mounted: function () {
         // Get the URL search parameters
@@ -35,12 +36,11 @@ var app = new Vue({
             });
 
         // Update the list of posts
-        updatePosts();
+        this.updatePosts();
     },
     methods: {
         toggleFollowing: function () {
             this.showFollowing = !this.showFollowing; // Toggle the value of showFollowing
-            console.log(this.showFollowing);
         },
         toggleFollowers: function () {
             this.showFollowers = !this.showFollowers; // Toggle the value of showFollowers
@@ -48,21 +48,85 @@ var app = new Vue({
         toggleFollow() {
             this.isFollowed = !this.isFollowed; // Toggle the state of the follow button
             this.FollowButtonText = this.isFollowed ? 'Followed' : 'Follow';
+            this.$emit('follow-toggled', this.isFollowed);
         },
         updatePosts() {
-            const userId = this.userId; // Assuming this.userId is already defined in your Vue component's data
-            const apiUrl = `/posts/notfrom/${userId}`; // API endpoint URL
-            axios.get(apiUrl)
+            const userId = this.userId;
+            axios.get(`http://localhost:3000/posts/notfrom/${userId}`)
                 .then(response => {
                     // Handle successful API response
-                    const results = response.data;
-                    
+                    const posts = response.data;
+                    // Update the 'posts' data property with the fetched data
+                    this.posts = posts;
                 })
                 .catch(error => {
                     // Handle API error
                     console.error(error);
                     // Do something with the error, e.g., show an error message to the user
                 });
+        },
+        onFollowToggled(isFollowed) {
+            console.log('Follow button toggled:', isFollowed);
         }
     }
+});
+
+
+Vue.component('post-block', {
+    props: ['post'],
+    data() {
+        return {
+            isFollowed: false,
+            followButtonText: 'Follow'
+        }
+    },
+    methods: {
+        toggleFollow() {
+            this.isFollowed = !this.isFollowed;
+            this.followButtonText = this.isFollowed ? 'Followed' : 'Follow';
+        },
+        formatDate: function (datetime) {
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: 'numeric',
+                minute: 'numeric'
+            };
+            return new Date(datetime).toLocaleString('en-US', options);
+        }
+    },
+    template: `
+    <div class="post-block">
+      <div class="post-arrow-section">
+        <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow">
+        <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180">
+      </div>
+      <div class="post-content-section">
+        <div class="post-user-section">
+          <div class="post-user-avatar">
+            <img class="avatar-img" src="resources/ME.jpg" alt="User Avatar">
+          </div>
+          <div class="post-details">
+            <div class="post-user-details">
+                <h4>User Name</h4>
+                <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow">{{ followButtonText }}</button>
+            </div>
+            <div class="post-date-section">
+              <p>Published on {{ formatDate(post.datetime) }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="post-title-section">
+          <h2>{{ post.title }}</h2>
+        </div>
+        <div class="post-content">
+          <p class="post-text">{{ post.content }}</p>
+        </div>
+        <div class="post-image-section" v-if="post.image !== null">
+          <!--<img class="post-image" src="{{ post.image }}" alt="Post Image">-->
+        </div>
+      </div>
+    </div>
+  `
 });

@@ -43,7 +43,7 @@ body, html {
 /* Left section */
 .left-section {
     flex: 1;
-    background-color: #3498db; /* Blue background color */
+    background-color: #e6ffff;
     padding: 20px;
 }
 
@@ -111,7 +111,7 @@ body, html {
 /* Middle section */
 .middle-section {
     flex: 3;
-    background-color: #e74c3c; /* Red background color */
+    background-color: #ebebfa;
     padding: 20px;
 }
 
@@ -272,7 +272,7 @@ body, html {
 /* Right section */
 .right-section {
     flex: 1;
-    background-color: #2ecc71; /* Green background color */
+    background-color: #ffe6e6;
     padding: 20px;
 }
 
