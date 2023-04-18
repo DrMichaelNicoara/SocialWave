@@ -14,6 +14,14 @@ var app = new Vue({
         errors: {} // Added property to store form field error messages
     },
     methods: {
+        onFileChange(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                this.profilePic = reader.result;
+            };
+        },
         submitForm: function () {
             // Reset password match status and form field error messages
             this.errors = {

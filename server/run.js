@@ -37,16 +37,6 @@ api.post('/signup', function (req, res) {
         }
     });
 
-    // Validate profilePicture extension
-    if (req.body.profilePic) {
-        const allowedExtensions = ['jpg', 'jpeg', 'png'];
-        const profilePic_list = req.body.profilePic.split('.');
-        const fileExtension = profilePic_list[profilePic_list.length - 1];
-        if (!allowedExtensions.includes(fileExtension)) {
-            errors.push("Profile picture must have a jpg, jpeg, or png extension.");
-        }
-    }
-
     // Validate firstName and lastName
     const nameRegex = /^[a-zA-Z\s]+$/;
     ['firstName', 'lastName'].forEach(field => {
@@ -83,7 +73,7 @@ api.post('/signup', function (req, res) {
                 // If there are no errors, insert new user record into the database
                 const query = `INSERT INTO users (profilePic, firstName, lastName, email, address, phoneNumber, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [
-                    null,
+                    req.body.profilePic,
                     req.body.firstName,
                     req.body.lastName,
                     req.body.email,
@@ -94,15 +84,15 @@ api.post('/signup', function (req, res) {
                 ];
                 database.query(query, values)
                     .then(results => {
-                        res.send({ error: "", userId: results[0].Id_user }); // Success
+                        res.send({ error: "", userId: results.insertId.toString() }); // Success
                     })
                     .catch(err => {
-                        res.send({ error: err });
+                        res.send({ error: err.message });
                     });
             }
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -178,7 +168,7 @@ api.get('/posts/notfrom/:userId', function (req, res) {
             res.send(results);
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -198,7 +188,7 @@ api.post('/posts', function (req, res) {
             res.send({ error: '', postId: results.insertId }); // Success, send back the postId of the newly created post
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -217,7 +207,7 @@ api.put('/posts/:postId', function (req, res) {
             res.send({ error: '' }); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -233,7 +223,7 @@ api.delete('/posts/:postId', function (req, res) {
             res.send({ error: '' }); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -249,7 +239,7 @@ api.get('/posts/:postId/comments', function (req, res) {
             res.send(results); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -267,7 +257,7 @@ api.post('/posts/:postId/comments', function (req, res) {
             res.send({ error: '', commentId: results.insertId }); // Success with the inserted commentId
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -284,7 +274,7 @@ api.put('/comments/:commentId', function (req, res) {
             res.send({ error: '' }); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -300,7 +290,7 @@ api.delete('/comments/:commentId', function (req, res) {
             res.send({ error: '' }); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -316,7 +306,7 @@ api.get('/users/:userId/notifications', function (req, res) {
             res.send(results); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -334,7 +324,7 @@ api.post('/users/:userId/notifications', function (req, res) {
             res.send({ error: '', notificationId: results.insertId }); // Success with the inserted notificationId
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
 
@@ -350,6 +340,6 @@ api.delete('/notifications/:notificationId', function (req, res) {
             res.send({ error: '' }); // Success
         })
         .catch(err => {
-            res.send({ error: err });
+            res.send({ error: err.message });
         });
 });
