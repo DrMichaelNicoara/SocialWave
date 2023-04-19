@@ -94,6 +94,9 @@ Vue.component('post-block', {
                 minute: 'numeric'
             };
             return new Date(datetime).toLocaleString('en-US', options);
+        },
+        getPostImage(post) {
+            return post.image;
         }
     },
     template: `
@@ -124,7 +127,7 @@ Vue.component('post-block', {
           <p class="post-text">{{ post.content }}</p>
         </div>
         <div class="post-image-section" v-if="post.image !== null">
-          <!--<img class="post-image" src="{{ post.image }}" alt="Post Image">-->
+          <img class="post-image" :src="getPostImage(post)" alt="Post Image">
         </div>
       </div>
     </div>

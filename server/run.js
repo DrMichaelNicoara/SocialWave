@@ -26,7 +26,7 @@ api.post('/login', function (req, res) {
         });
 });
 
-// Signup endpoint
+// SignUp endpoint
 api.post('/signup', function (req, res) {
     // Validate each field except profilePicture
     const fields = ['firstName', 'lastName', 'email', 'address', 'phoneNumber', 'username', 'password'];
@@ -70,10 +70,23 @@ api.post('/signup', function (req, res) {
                 // If there are any errors, send them to the client
                 res.send({ error: errors.join(", ") });
             } else {
-                // If there are no errors, insert new user record into the database
+                // If there are no errors, begin processing file chunks
+                const fileChunks = req.body.fileChunks;
+                const filename = req.body.filename;
+                const filePath = `${__dirname}/uploads/${filename}`;
+                const stream = fs.createWriteStream(filePath);
+                let offset = 0;
+                fileChunks.forEach((chunk) => {
+                    const buffer = Buffer.from(chunk.data, 'base64');
+                    stream.write(buffer, offset);
+                    offset += buffer.length;
+                });
+                stream.end();
+
+                // Insert new user record into the database
                 const query = `INSERT INTO users (profilePic, firstName, lastName, email, address, phoneNumber, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [
-                    req.body.profilePic,
+                    filename,
                     req.body.firstName,
                     req.body.lastName,
                     req.body.email,
