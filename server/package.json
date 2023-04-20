@@ -5,6 +5,7 @@
   "version": "0.0.1",
   "dependencies": {
     "body-parser": "^1.12.2",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "express": "3.x",
     "mariadb": "^3.1.1"

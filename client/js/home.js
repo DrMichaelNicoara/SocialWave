@@ -77,8 +77,24 @@ Vue.component('post-block', {
     data() {
         return {
             isFollowed: false,
-            followButtonText: 'Follow'
+            followButtonText: 'Follow',
+            user: {
+                name: null,
+                avatar: null
+            }
         }
+    },
+    created() {
+        axios.get(`http://localhost:3000/users/${app.userId}`)
+            .then(response => {
+                this.user = {
+                    name: response.data ? response.data.username : null,
+                    avatar: response.data ? response.data.profilePic : null
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
     },
     methods: {
         toggleFollow() {
@@ -108,11 +124,11 @@ Vue.component('post-block', {
       <div class="post-content-section">
         <div class="post-user-section">
           <div class="post-user-avatar">
-            <img class="avatar-img" src="resources/ME.jpg" alt="User Avatar">
+            <img class="avatar-img" :src="user.avatar ? user.avatar : 'resources/default.jpg'" alt="User Avatar">
           </div>
           <div class="post-details">
             <div class="post-user-details">
-                <h4>User Name</h4>
+                <h4>{{ user.name }}</h4>
                 <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow">{{ followButtonText }}</button>
             </div>
             <div class="post-date-section">

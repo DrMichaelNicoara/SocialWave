@@ -3,7 +3,6 @@ var app = new Vue({
     data: {
         // Initialize data properties for form fields
         profilePic: null,
-        profilePicName: '',
         firstName: '',
         lastName: '',
         email: '',
@@ -21,7 +20,6 @@ var app = new Vue({
             reader.readAsDataURL(file);
             reader.onload = () => {
                 this.profilePic = reader.result;
-                this.profilePicName = file.name;
             };
         },
         submitForm: function () {
@@ -49,7 +47,7 @@ var app = new Vue({
 
             // Create a dict to store form data
             var formData = {
-                profilePic: this.profilePicName,
+                profilePic: this.profilePic,
                 firstName: this.firstName,
                 lastName: this.lastName,
                 email: this.email,
@@ -61,155 +59,68 @@ var app = new Vue({
 
             // Send a POST request to the server using Axios
             axios.post('http://localhost:3000/signup', formData)
-                .then(response => {
-                    if (response.data.error === '') {
-                        // If error is empty, change page to home.html
-                        window.location.href = `home.html?userId=${response.data.userId}`;
-                    } else {
-                        const errorMessages = response.data.error.split(', ');
-                        document.getElementById('errorMessage').textContent = errorMessages.join("\n");
-                        // If error is not empty, handle form field error messages
-                        errorMessages.forEach(errorMessage => {
-                            if (errorMessage.includes('is required')) {
-                                // Handle required field error
-                                const field = errorMessage.split(' ')[0];
-                                this.errors[field] = true;
-                                setTimeout(() => {
-                                    this.errors[field] = false;
-                                }, 2000);
-                            } else if (errorMessage === 'Profile picture must have a jpg, jpeg, or png extension.') {
-                                // Handle profile picture extension error
-                                this.errors['profilePic'] = true;
-                                setTimeout(() => {
-                                    this.errors['profilePic'] = false;
-                                }, 2000);
-                            } else if (errorMessage.includes('must only contain letters or spaces.')) {
-                                // Handle firstName and lastName format error
-                                const field = errorMessage.split(' ')[0];
-                                this.errors[field] = true;
-                                setTimeout(() => {
-                                    this.errors[field] = false;
-                                }, 2000);
-                            } else if (errorMessage === 'Username already exists.') {
-                                // Handle username duplicate error
-                                this.errors['username'] = true;
-                                setTimeout(() => {
-                                    this.errors['username'] = false;
-                                }, 2000);
-                            } else if (errorMessage === 'Email is not valid.') {
-                                this.errors['email'] = true;
-                                setTimeout(() => {
-                                    this.errors['email'] = false;
-                                }, 2000);
-                            } else if (errorMessage === "Phone number must be 10 digits long and contain only digits.") {
-                                this.errors['phoneNumber'] = true;
-                                setTimeout(() => {
-                                    this.errors['phoneNumber'] = false;
-                                }, 2000);
-                            }
-                            else {
-                                // Throw new Error for any other error messages
-                                throw new Error(errorMessage);
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    // Handle error by showing in a popup
-                    Swal.fire({
-                        title: 'Error',
-                        text: error.message,
-                        type: 'error',
-                        confirmButtonText: 'OK'
+            .then(response => {
+                if (response.data.error === '') {
+                    // If error is empty, change page to home.html
+                    window.location.href = `home.html?userId=${response.data.userId}`;
+                } else {
+                    const errorMessages = response.data.error.split(', ');
+                    document.getElementById('errorMessage').textContent = errorMessages.join("\n");
+                    // If error is not empty, handle form field error messages
+                    errorMessages.forEach(errorMessage => {
+                        if (errorMessage.includes('is required')) {
+                            // Handle required field error
+                            const field = errorMessage.split(' ')[0];
+                            this.errors[field] = true;
+                            setTimeout(() => {
+                                this.errors[field] = false;
+                            }, 2000);
+                        } else if (errorMessage === 'Profile picture must have a jpg, jpeg, or png extension.') {
+                            // Handle profile picture extension error
+                            this.errors['profilePic'] = true;
+                            setTimeout(() => {
+                                this.errors['profilePic'] = false;
+                            }, 2000);
+                        } else if (errorMessage.includes('must only contain letters or spaces.')) {
+                            // Handle firstName and lastName format error
+                            const field = errorMessage.split(' ')[0];
+                            this.errors[field] = true;
+                            setTimeout(() => {
+                                this.errors[field] = false;
+                            }, 2000);
+                        } else if (errorMessage === 'Username already exists.') {
+                            // Handle username duplicate error
+                            this.errors['username'] = true;
+                            setTimeout(() => {
+                                this.errors['username'] = false;
+                            }, 2000);
+                        } else if (errorMessage === 'Email is not valid.') {
+                            this.errors['email'] = true;
+                            setTimeout(() => {
+                                this.errors['email'] = false;
+                            }, 2000);
+                        } else if (errorMessage === "Phone number must be 10 digits long and contain only digits.") {
+                            this.errors['phoneNumber'] = true;
+                            setTimeout(() => {
+                                this.errors['phoneNumber'] = false;
+                            }, 2000);
+                        }
+                        else {
+                            // Throw new Error for any other error messages
+                            throw new Error(errorMessage);
+                        }
                     });
+                }
+            })
+            .catch(error => {
+                // Handle error by showing in a popup
+                Swal.fire({
+                    title: 'Error',
+                    text: error.message,
+                    type: 'error',
+                    confirmButtonText: 'OK'
                 });
-
-            // Initialize variables for chunking
-            const chunkSize = 1024 * 1024; // 1MB
-            const file = this.profilePic;
-            const fileSize = file.size;
-            let offset = 0;
-
-            // Read the file in chunks and send each chunk to the server
-            while (offset < fileSize) {
-                const chunk = file.slice(offset, offset + chunkSize);
-                const reader = new FileReader();
-                reader.readAsDataURL(chunk);
-                reader.onload = () => {
-                    // Append the chunk to the form data
-                    formData[`chunk_${offset}`] = reader.result;
-
-                    // If this is the last chunk, send the form data to the server
-                    if (offset + chunkSize >= fileSize) {
-                        axios.post('http://localhost:3000/signup', formData)
-                            .then(response => {
-                                if (response.data.error === '') {
-                                    // If error is empty, change page to home.html
-                                    window.location.href = `home.html?userId=${response.data.userId}`;
-                                } else {
-                                    const errorMessages = response.data.error.split(', ');
-                                    document.getElementById('errorMessage').textContent = errorMessages.join("\n");
-                                    // If error is not empty, handle form field error messages
-                                    errorMessages.forEach(errorMessage => {
-                                        if (errorMessage.includes('is required')) {
-                                            // Handle required field error
-                                            const field = errorMessage.split(' ')[0];
-                                            this.errors[field] = true;
-                                            setTimeout(() => {
-                                                this.errors[field] = false;
-                                            }, 2000);
-                                        } else if (errorMessage === 'Profile picture must have a jpg, jpeg, or png extension.') {
-                                            // Handle profile picture extension error
-                                            this.errors['profilePic'] = true;
-                                            setTimeout(() => {
-                                                this.errors['profilePic'] = false;
-                                            }, 2000);
-                                        } else if (errorMessage.includes('must only contain letters or spaces.')) {
-                                            // Handle firstName and lastName format error
-                                            const field = errorMessage.split(' ')[0];
-                                            this.errors[field] = true;
-                                            setTimeout(() => {
-                                                this.errors[field] = false;
-                                            }, 2000);
-                                        } else if (errorMessage === 'Username already exists.') {
-                                            // Handle username duplicate error
-                                            this.errors['username'] = true;
-                                            setTimeout(() => {
-                                                this.errors['username'] = false;
-                                            }, 2000);
-                                        } else if (errorMessage === 'Email is not valid.') {
-                                            this.errors['email'] = true;
-                                            setTimeout(() => {
-                                                this.errors['email'] = false;
-                                            }, 2000);
-                                        } else if (errorMessage === "Phone number must be 10 digits long and contain only digits.") {
-                                            this.errors['phoneNumber'] = true;
-                                            setTimeout(() => {
-                                                this.errors['phoneNumber'] = false;
-                                            }, 2000);
-                                        }
-                                        else {
-                                            // Throw new Error for any other error messages
-                                            throw new Error(errorMessage);
-                                        }
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                // Handle error by showing in a popup
-                                Swal.fire({
-                                    title: 'Error',
-                                    text: error.message,
-                                    type: 'error',
-                                    confirmButtonText: 'OK'
-                                });
-                            });
-                    }
-
-                    // Increment the offset for the next chunk
-                    offset += chunkSize;
-                };
-            }
+            });
         }
     }
 });

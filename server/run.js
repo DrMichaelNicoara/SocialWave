@@ -70,23 +70,10 @@ api.post('/signup', function (req, res) {
                 // If there are any errors, send them to the client
                 res.send({ error: errors.join(", ") });
             } else {
-                // If there are no errors, begin processing file chunks
-                const fileChunks = req.body.fileChunks;
-                const filename = req.body.filename;
-                const filePath = `${__dirname}/uploads/${filename}`;
-                const stream = fs.createWriteStream(filePath);
-                let offset = 0;
-                fileChunks.forEach((chunk) => {
-                    const buffer = Buffer.from(chunk.data, 'base64');
-                    stream.write(buffer, offset);
-                    offset += buffer.length;
-                });
-                stream.end();
-
                 // Insert new user record into the database
                 const query = `INSERT INTO users (profilePic, firstName, lastName, email, address, phoneNumber, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [
-                    filename,
+                    req.body.profilePic,
                     req.body.firstName,
                     req.body.lastName,
                     req.body.email,
@@ -142,6 +129,35 @@ api.get('/followers/:userId', function (req, res) {
             res.send({ error: 'Internal Server Error (500)' });
         });
 });
+
+api.get('/users/:userId', function (req, res) {
+    const userId = req.params.userId;
+
+    // Perform a query to retrieve the user with the specified userId
+    const query = `SELECT Id, profilePic, firstName, lastName, email, address, phoneNumber, username FROM users WHERE Id = ?`;
+    const values = [userId];
+    database.query(query, values)
+        .then(results => {
+            if (results.length > 0) {
+                const user = results[0];
+                delete user.password; // Remove password from user object
+
+                const buffer = new Buffer(user.profilePic);
+
+                // Convert the buffer to a base64-encoded string
+                const imageUrl = buffer.toString('base64');
+
+                user.profilePic = imageUrl;
+                res.send(user); // Success
+            } else {
+                res.send(null); // User not found
+            }
+        })
+        .catch(err => {
+            res.send({ error: err.message });
+        });
+});
+
 
 // Post a new follow entry
 api.post('/follow', function (req, res) {
