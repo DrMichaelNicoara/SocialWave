@@ -99,9 +99,8 @@ api.post('/signup', function (req, res) {
 // Get all the users a specific user is following
 api.get('/following/:userId', function (req, res) {
     const userId = req.params.userId;
-
     // Perform a query to get all the users the specified user is following
-    const query = `SELECT u.* FROM follows f
+    const query = `SELECT u.username FROM follows f
                    INNER JOIN users u ON f.Id_user = u.Id
                    WHERE f.Id_follower = ?`;
     database.query(query, [userId])
@@ -118,7 +117,7 @@ api.get('/followers/:userId', function (req, res) {
     const userId = req.params.userId;
 
     // Perform a query to get all the users that follow the specified user
-    const query = `SELECT u.* FROM follows f
+    const query = `SELECT u.username FROM follows f
                    INNER JOIN users u ON f.Id_follower = u.Id
                    WHERE f.Id_user = ?`;
     database.query(query, [userId])
@@ -130,6 +129,7 @@ api.get('/followers/:userId', function (req, res) {
         });
 });
 
+// Get user data from Id
 api.get('/users/:userId', function (req, res) {
     const userId = req.params.userId;
 
@@ -141,13 +141,9 @@ api.get('/users/:userId', function (req, res) {
             if (results.length > 0) {
                 const user = results[0];
                 delete user.password; // Remove password from user object
-
                 const buffer = new Buffer(user.profilePic);
 
-                // Convert the buffer to a base64-encoded string
-                const imageUrl = buffer.toString('base64');
-
-                user.profilePic = imageUrl;
+                user.profilePic = buffer.toString();
                 res.send(user); // Success
             } else {
                 res.send(null); // User not found
@@ -157,7 +153,6 @@ api.get('/users/:userId', function (req, res) {
             res.send({ error: err.message });
         });
 });
-
 
 // Post a new follow entry
 api.post('/follow', function (req, res) {
@@ -187,6 +182,26 @@ api.post('/follow', function (req, res) {
         });
 });
 
+// Delete a follow entry
+api.delete('/follow', function (req, res) {
+    const userId = req.body.userId;
+    const followerId = req.body.followerId;
+
+    // Perform a query to delete the follow entry
+    const deleteQuery = `DELETE FROM follows WHERE Id_user = ? AND Id_follower = ?`;
+    database.query(deleteQuery, [userId, followerId])
+        .then(results => {
+            if (results.affectedRows === 0) {
+                res.send({ error: 'Follow entry not found' });
+            } else {
+                res.send({ error: '' }); // Success
+            }
+        })
+        .catch(err => {
+            res.send({ error: err });
+        });
+});
+
 // Get all posts which are not from a specific user
 api.get('/posts/notfrom/:userId', function (req, res) {
     const userId = req.params.userId;
@@ -194,6 +209,12 @@ api.get('/posts/notfrom/:userId', function (req, res) {
     const query = `SELECT * FROM posts WHERE Id_user != ?`;
     database.query(query, [userId])
         .then(results => {
+            results.forEach(result => {
+                if (result.image) {
+                    const buffer = new Buffer(result.image);
+                    result.image = buffer.toString();
+                }
+            });
             res.send(results);
         })
         .catch(err => {

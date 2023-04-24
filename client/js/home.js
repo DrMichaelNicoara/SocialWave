@@ -45,11 +45,6 @@ var app = new Vue({
         toggleFollowers: function () {
             this.showFollowers = !this.showFollowers; // Toggle the value of showFollowers
         },
-        toggleFollow() {
-            this.isFollowed = !this.isFollowed; // Toggle the state of the follow button
-            this.FollowButtonText = this.isFollowed ? 'Followed' : 'Follow';
-            this.$emit('follow-toggled', this.isFollowed);
-        },
         updatePosts() {
             const userId = this.userId;
             axios.get(`http://localhost:3000/posts/notfrom/${userId}`)
@@ -64,9 +59,6 @@ var app = new Vue({
                     console.error(error);
                     // Do something with the error, e.g., show an error message to the user
                 });
-        },
-        onFollowToggled(isFollowed) {
-            console.log('Follow button toggled:', isFollowed);
         }
     }
 });
@@ -79,29 +71,80 @@ Vue.component('post-block', {
             isFollowed: false,
             followButtonText: 'Follow',
             user: {
-                name: null,
+                id: null,
+                username: null,
                 avatar: null
             }
         }
     },
-    created() {
-        axios.get(`http://localhost:3000/users/${app.userId}`)
-            .then(response => {
-                this.user = {
-                    name: response.data ? response.data.username : null,
-                    avatar: response.data ? response.data.profilePic : null
+    mounted: function() {
+        const userData = this.getPostData(this.post.Id_user);
+        userData.then(data => {
+            this.user.id = data.Id;
+            this.user.username = data.username;
+            this.user.avatar = data.profilePic;
+        });
+
+        fetch(`http://localhost:3000/following/${app.userId}`)
+            .then(response => response.json())
+            .then(followings => {
+                if (followings.users.some(user => user.username === this.user.username)) {
+                    this.isFollowed = true;
+                    this.followButtonText = 'Followed';
                 }
             })
             .catch(error => {
-                console.log(error);
-            })
+                console.error('Error fetching following data:', error);
+            });
     },
     methods: {
-        toggleFollow() {
+        toggleFollow(Id_post_user) {
+            if (this.followButtonText === 'Follow') {
+                // Send the follow request to the server
+                axios.post('http://localhost:3000/follow', {
+                   data: {
+                        userId: Id_post_user,
+                        followerId: app.userId
+                    }
+                })
+                    .then(response => {
+                        if (this.user.username && !app.following.some(user => user.username === this.user.username)) {
+                            app.following.push({ username: this.user.username });
+                        }
+                        else {
+                            throw new Error('Post user username is null');
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error); // handle the error
+                    });
+            }
+            else {
+                axios.delete('http://localhost:3000/follow', {
+                    data: {
+                        userId: Id_post_user,
+                        followerId: app.userId
+                    }
+                })
+                    .then(() => {
+                        axios.get(`http://localhost:3000/users/${Id_post_user}`)
+                            .then(response => {
+                                const index = app.following.findIndex(user => user.username === response.data.username);
+
+                                // Remove the dictionary from the list using the splice() method
+                                if (index !== -1) {
+                                    app.following.splice(index, 1);
+                                }
+                            })
+                    })
+                    .catch(error => {
+                        console.log(error); // handle the error
+                    });
+            }
             this.isFollowed = !this.isFollowed;
             this.followButtonText = this.isFollowed ? 'Followed' : 'Follow';
         },
-        formatDate: function (datetime) {
+        formatDate(datetime) {
             const options = {
                 year: 'numeric',
                 month: '2-digit',
@@ -111,8 +154,14 @@ Vue.component('post-block', {
             };
             return new Date(datetime).toLocaleString('en-US', options);
         },
-        getPostImage(post) {
-            return post.image;
+        async getPostData(Id_post_user) {
+            try {
+                const response = await axios.get(`http://localhost:3000/users/${Id_post_user}`);
+                return response.data;
+            } catch (error) {
+                console.log(error);
+                throw error;
+            }
         }
     },
     template: `
@@ -128,8 +177,8 @@ Vue.component('post-block', {
           </div>
           <div class="post-details">
             <div class="post-user-details">
-                <h4>{{ user.name }}</h4>
-                <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow">{{ followButtonText }}</button>
+                <h4>{{ user.username }}</h4>
+                <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow(post.Id_user)">{{ followButtonText }}</button>
             </div>
             <div class="post-date-section">
               <p>Published on {{ formatDate(post.datetime) }}</p>
@@ -143,7 +192,7 @@ Vue.component('post-block', {
           <p class="post-text">{{ post.content }}</p>
         </div>
         <div class="post-image-section" v-if="post.image !== null">
-          <img class="post-image" :src="getPostImage(post)" alt="Post Image">
+          <img class="post-image" :src="post.image" alt="Post Image">
         </div>
       </div>
     </div>
