@@ -27,8 +27,33 @@
             </div>
         </div>
         <div class="middle-section">
+            <div class="post-block">
+                <div class="post-content-section">
+                    <div class="post-user-section">
+                        <div class="post-user-avatar">
+                        </div>
+                        <div class="post-details">
+                            <div class="post-user-details">
+                                <h4>User name</h4>
+                            </div>
+                            <div class="post-date-section">
+                                <p>Published on date</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-title-section">
+                        <h2>Title</h2>
+                    </div>
+                    <div class="post-content">
+                        <p class="post-text">Content</p>
+                    </div>
+                    <div class="post-image-section">
+                        <p>Image</p>
+                    </div>
+                </div>
+            </div>
             <div class="post-feed">
-                <post-block v-for="post in posts" :post="post"></post-block>
+                <post-block v-for="(post, index) in posts" :post="post" :key="index" @follow-status-changed="updateFollowStatus" :parent-is-followed="post.parentIsFollowed" :parent-follow-button-text="post.parentFollowButtonText"></post-block>
             </div>
         </div>
         <div class="right-section">

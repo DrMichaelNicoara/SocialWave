@@ -6,8 +6,6 @@ var app = new Vue({
         userId: null, // Initialize userId to null
         showFollowing: false, // Initialize showFollowing to false
         showFollowers: false, // Initialize showFollowers to false
-        isFollowed: false,
-        FollowButtonText: "Follow",
         posts: null
     },
     mounted: function () {
@@ -48,28 +46,74 @@ var app = new Vue({
         updatePosts() {
             const userId = this.userId;
             axios.get(`http://localhost:3000/posts/notfrom/${userId}`)
-                .then(response => {
-                    // Handle successful API response
-                    const posts = response.data;
+                .then(async response => {
                     // Update the 'posts' data property with the fetched data
-                    this.posts = posts;
+                    this.posts = response.data;
+                    for (const post of this.posts) {
+                        const status = await this.checkFollowStatus(post.Id_user);
+                        this.$set(post, 'parentIsFollowed', status.isFollowed);
+                        this.$set(post, 'parentFollowButtonText', status.followButtonText);
+                    }
                 })
                 .catch(error => {
                     // Handle API error
                     console.error(error);
                     // Do something with the error, e.g., show an error message to the user
                 });
+        },
+
+        updateFollowStatus(payload) {
+            // filter the posts that match the username of the payload
+            const postsToUpdate = this.posts.filter(post => post.Id_user === payload.userId);
+
+            // update the isFollowed and followButtonText properties of the payload object itself
+            payload.isFollowed = !payload.isFollowed;
+            payload.followButtonText = payload.isFollowed ? 'Followed' : 'Follow';
+
+            // update the isFollowed and followButtonText properties of each post
+            postsToUpdate.forEach(post => {
+                this.$set(post, 'parentIsFollowed', payload.isFollowed);
+                this.$set(post, 'parentFollowButtonText', payload.followButtonText);
+            });
+        },
+
+        async checkFollowStatus(Id_user) {
+            try {
+                const response = await axios.get(`http://localhost:3000/following/${app.userId}`);
+                const followings = response.data;
+
+                return new Promise((resolve, reject) => {
+                    axios.get(`http://localhost:3000/users/${Id_user}`)
+                        .then(response => {
+                            if (followings.users.some(user => user.username === response.data.username)) {
+                                resolve({ isFollowed: true, followButtonText: 'Followed' });
+                            } else {
+                                resolve({ isFollowed: false, followButtonText: 'Follow' });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching user data:', error);
+                            reject(error);
+                        });
+                });
+            } catch (error) {
+                console.error('Error fetching following data:', error);
+            }
         }
     }
 });
 
 
 Vue.component('post-block', {
-    props: ['post'],
+    props: {
+        post: Object,
+        parentIsFollowed: Boolean,
+        parentFollowButtonText: String
+    },
     data() {
         return {
-            isFollowed: false,
-            followButtonText: 'Follow',
+            postVotes: 0,
+            myVote: 0,
             user: {
                 id: null,
                 username: null,
@@ -77,37 +121,24 @@ Vue.component('post-block', {
             }
         }
     },
-    mounted: function() {
+    created: function () {
         const userData = this.getPostData(this.post.Id_user);
         userData.then(data => {
             this.user.id = data.Id;
             this.user.username = data.username;
             this.user.avatar = data.profilePic;
         });
-
-        fetch(`http://localhost:3000/following/${app.userId}`)
-            .then(response => response.json())
-            .then(followings => {
-                if (followings.users.some(user => user.username === this.user.username)) {
-                    this.isFollowed = true;
-                    this.followButtonText = 'Followed';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching following data:', error);
-            });
+        this.postVotes = this.post.votes;
     },
     methods: {
         toggleFollow(Id_post_user) {
-            if (this.followButtonText === 'Follow') {
+            if (!this.parentIsFollowed) {
                 // Send the follow request to the server
                 axios.post('http://localhost:3000/follow', {
-                   data: {
-                        userId: Id_post_user,
-                        followerId: app.userId
-                    }
+                    userId: Id_post_user,
+                    followerId: app.userId
                 })
-                    .then(response => {
+                    .then(() => {
                         if (this.user.username && !app.following.some(user => user.username === this.user.username)) {
                             app.following.push({ username: this.user.username });
                         }
@@ -141,8 +172,9 @@ Vue.component('post-block', {
                         console.log(error); // handle the error
                     });
             }
-            this.isFollowed = !this.isFollowed;
-            this.followButtonText = this.isFollowed ? 'Followed' : 'Follow';
+
+            // Emit an event to update the follow status in the parent component
+            this.$emit('follow-status-changed', { userId: this.user.id, isFollowed: this.parentIsFollowed, followButtonText: this.parentFollowButtonText });
         },
         formatDate(datetime) {
             const options = {
@@ -162,13 +194,46 @@ Vue.component('post-block', {
                 console.log(error);
                 throw error;
             }
+        },
+        upvote() {
+            if (this.myVote === 1) {
+                this.postVotes--;
+                this.myVote = 0;
+            } else if (this.myVote === 0) {
+                this.postVotes++;
+                this.myVote = 1;
+            } else {
+                this.postVotes += 2;
+                this.myVote = 1;
+            }
+            axios.put(`http://localhost:3000/postVotes/${this.post.Id}`, { votes: this.postVotes })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        downvote() {
+            if (this.myVote === -1) {
+                this.postVotes++;
+                this.myVote = 0;
+            } else if (this.myVote === 0) {
+                this.postVotes--;
+                this.myVote = -1;
+            } else {
+                this.postVotes -= 2;
+                this.myVote = -1;
+            }
+            axios.put(`http://localhost:3000/postVotes/${this.post.Id}`, { votes: this.postVotes })
+                .catch(error => {
+                    console.error(error);
+                });
         }
     },
     template: `
     <div class="post-block">
       <div class="post-arrow-section">
-        <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow">
-        <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180">
+        <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow" :class="{ 'upvoted': myVote === 1 }" @click="upvote">
+        <span class="vote-count" :class="{ 'blue': myVote !== 0 }">{{ postVotes }}</span>
+        <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180" :class="{ 'upvoted': myVote === -1 }" @click="downvote">
       </div>
       <div class="post-content-section">
         <div class="post-user-section">
@@ -178,7 +243,7 @@ Vue.component('post-block', {
           <div class="post-details">
             <div class="post-user-details">
                 <h4>{{ user.username }}</h4>
-                <button class="follow-btn" :class="{ active: isFollowed }" @click="toggleFollow(post.Id_user)">{{ followButtonText }}</button>
+                <button class="follow-btn" :class="{ active: parentIsFollowed }" @click="toggleFollow(post.Id_user)">{{ parentFollowButtonText }}</button>
             </div>
             <div class="post-date-section">
               <p>Published on {{ formatDate(post.datetime) }}</p>

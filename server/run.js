@@ -231,11 +231,28 @@ api.post('/posts', function (req, res) {
     const image = req.body.image || '';
 
     // Perform a query to insert a new post into the database
-    const query = `INSERT INTO posts (Id_user, datetime, title, content, image) VALUES (?, ?, ?, ?, ?)`;
-    const values = [userId, datetime, title, content, image];
+    const query = `INSERT INTO posts (Id_user, datetime, title, content, image, votes) VALUES (?, ?, ?, ?, ?, ?)`;
+    const values = [userId, datetime, title, content, image, 0];
     database.query(query, values)
         .then(results => {
             res.send({ error: '', postId: results.insertId }); // Success, send back the postId of the newly created post
+        })
+        .catch(err => {
+            res.send({ error: err.message });
+        });
+});
+
+// Update a post's votes by postId
+api.put('/postVotes/:postId', function (req, res) {
+    const postId = req.params.postId;
+    const votes = req.body.votes;
+
+    // Perform a query to update the specified post by postId
+    const query = `UPDATE posts SET votes = ? WHERE Id = ?`;
+    const values = [votes, postId];
+    database.query(query, values)
+        .then(results => {
+            res.send({ error: '' }); // Success
         })
         .catch(err => {
             res.send({ error: err.message });

@@ -135,6 +135,12 @@ body, html {
     width: 100%;
     background-size: contain;
     background-repeat: no-repeat;
+    cursor: pointer;
+    filter: brightness(1);
+}
+
+.post-arrow.upvoted {
+    content: url(../resources/upvoted.png);
 }
 
 .up-arrow {
@@ -142,6 +148,15 @@ body, html {
 
 .down-arrow {
     transform: rotate(180deg);
+}
+
+.vote-count {
+    color: black;
+    font-weight: bold;
+}
+
+.vote-count.blue {
+    color: blue;
 }
 
 .post-author {
