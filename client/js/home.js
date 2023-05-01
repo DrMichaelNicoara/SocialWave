@@ -6,13 +6,31 @@ var app = new Vue({
         userId: null, // Initialize userId to null
         showFollowing: false, // Initialize showFollowing to false
         showFollowers: false, // Initialize showFollowers to false
-        posts: null
+        posts: null,
+
+        // New post data
+        user: {},
+        currentDate: '',
+        title: '',
+        content: '',
+        imageSrc: '',
+        imageData: null
     },
     mounted: function () {
         // Get the URL search parameters
         const urlSearchParams = new URLSearchParams(window.location.search);
         // Extract the value of the 'userId' parameter from the search parameters
         this.userId = urlSearchParams.get('userId');
+
+        axios.get(`http://localhost:3000/users/${this.userId}`)
+            .then(response => {
+                this.user = response.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        this.currentDate = new Date();
+        this.imageSrc = "resources/upload-image-icon.png";
 
         // Fetch the list of following and followers data from the API endpoints
         fetch(`http://localhost:3000/following/${this.userId}`) // Use this.userId to access the extracted user id
@@ -61,7 +79,6 @@ var app = new Vue({
                     // Do something with the error, e.g., show an error message to the user
                 });
         },
-
         updateFollowStatus(payload) {
             // filter the posts that match the username of the payload
             const postsToUpdate = this.posts.filter(post => post.Id_user === payload.userId);
@@ -76,7 +93,6 @@ var app = new Vue({
                 this.$set(post, 'parentFollowButtonText', payload.followButtonText);
             });
         },
-
         async checkFollowStatus(Id_user) {
             try {
                 const response = await axios.get(`http://localhost:3000/following/${app.userId}`);
@@ -99,6 +115,60 @@ var app = new Vue({
             } catch (error) {
                 console.error('Error fetching following data:', error);
             }
+        },
+        formatDate(datetime) {
+            const options = {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: 'numeric',
+                minute: 'numeric'
+            };
+            return new Date(datetime).toLocaleString('en-US', options);
+        },
+        onImageSelected(event) {
+            const file = event.target.files[0];
+            this.imageSrc = URL.createObjectURL(file);
+            const imageIcon = document.querySelector('.upload-image-icon');
+            imageIcon.style.maxHeight = '150px';
+
+            if (this.imageSrc) {
+                fetch(this.imageSrc)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onload = () => {
+                            this.imageData = reader.result;
+                        };
+                    });
+            }
+        },
+        autoResize(event) {
+            const textarea = event.target;
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + "px";
+        },
+        uploadPost() {
+            if (!this.userId || !this.title || !this.content) return;
+
+            axios.post("http://localhost:3000/posts", {
+                'Id_user': this.userId,
+                'title': this.title,
+                'content': this.content,
+                'image': this.imageData
+            })
+            .catch(error => {
+                console.log(error);
+            })
+
+            // Empty the post
+            this.title = '';
+            this.content = '';
+            this.currentDate = new Date();
+            this.imageSrc = "resources/upload-image-icon.png";
+            const imageIcon = document.querySelector('.upload-image-icon');
+            imageIcon.style.maxHeight = '30px';
         }
     }
 });

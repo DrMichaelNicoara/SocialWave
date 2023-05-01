@@ -246,6 +246,7 @@ body, html {
 
 .post-content-section {
     margin-left: 10px;
+    width: 100%;
 }
 
 .post-content {
@@ -282,6 +283,82 @@ body, html {
 .post-image {
     width: 100%;
     height: 100%;
+}
+
+.upload-post-block {
+    padding-left: 30px;
+    margin-bottom: 20px;
+}
+
+.upload-post-image {
+    max-height: 150px;
+    height: auto;
+    margin-top: 10px;
+}
+
+.post-inputs {
+    border: none;
+    width: 90%;
+}
+
+input[name="title"] {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+textarea {
+    font-size: 16px;
+    resize: none;
+}
+
+.upload-image-label {
+    display: inline-block;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.upload-image-icon {
+    display:  block;
+    width: auto;
+    max-height: 30px;
+    margin-right: 10px;
+    margin-bottom: 3px;
+    vertical-align: middle;
+}
+
+#post-image {
+    position: absolute;
+    left: -9999px;
+}
+
+#post-image:focus + .upload-image-label {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+.upload-post-button {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    background-color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.upload-post-button:hover {
+    color: #fff;
+    background-color: #007bff;
+}
+
+.upload-post-button:active {
+    background-color: #286090;
+    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Right section */

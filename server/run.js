@@ -226,9 +226,11 @@ api.get('/posts/notfrom/:userId', function (req, res) {
 api.post('/posts', function (req, res) {
     const userId = req.body.Id_user;
     const datetime = new Date().toISOString().slice(0, 19).replace('T', ' '); // Current datetime
-    const title = req.body.title || '';
+    const title = req.body.title;
     const content = req.body.content;
-    const image = req.body.image || '';
+    const image = req.body.image;
+
+    if (!userId || !title || !content) { res.send({ error: 'User Id or title or content are empty' }); return;}
 
     // Perform a query to insert a new post into the database
     const query = `INSERT INTO posts (Id_user, datetime, title, content, image, votes) VALUES (?, ?, ?, ?, ?, ?)`;

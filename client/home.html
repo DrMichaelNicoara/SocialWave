@@ -27,29 +27,34 @@
             </div>
         </div>
         <div class="middle-section">
-            <div class="post-block">
+            <div class="post-block upload-post-block">
                 <div class="post-content-section">
                     <div class="post-user-section">
                         <div class="post-user-avatar">
+                            <img class="avatar-img" :src="user.profilePic ? user.profilePic : 'resources/default.jpg'" alt="User Avatar">
                         </div>
                         <div class="post-details">
                             <div class="post-user-details">
-                                <h4>User name</h4>
+                                <h4>{{ user.username }}</h4>
                             </div>
                             <div class="post-date-section">
-                                <p>Published on date</p>
+                                <p>Published on {{ formatDate(currentDate) }}</p>
                             </div>
                         </div>
                     </div>
                     <div class="post-title-section">
-                        <h2>Title</h2>
+                        <h2><input name="title" class="post-inputs" v-model="title" placeholder="Title"></h2>
                     </div>
                     <div class="post-content">
-                        <p class="post-text">Content</p>
+                        <textarea class="post-inputs" v-model="content" placeholder="Tell everyone about your day" @input="autoResize"></textarea>
                     </div>
-                    <div class="post-image-section">
-                        <p>Image</p>
+                    <div class="post-image-section upload-post-image">
+                        <label for="post-image" class="upload-image-label">
+                            <img class="upload-image-icon" :src="imageSrc">
+                        </label>
+                        <input id="post-image" type="file" accept=".jpg,.jpeg,.png" @change="onImageSelected">
                     </div>
+                    <button class="upload-post-button" @click="uploadPost">Upload Post</button>
                 </div>
             </div>
             <div class="post-feed">
