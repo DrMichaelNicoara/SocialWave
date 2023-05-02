@@ -315,12 +315,18 @@ api.get('/posts/:postId/comments', function (req, res) {
 // Create a new comment for a post by postId
 api.post('/posts/:postId/comments', function (req, res) {
     const postId = req.params.postId;
-    const content = req.body.content;
     const userId = req.body.userId;
+    const content = req.body.content;
+    const datetime = new Date().toISOString().slice(0, 19).replace('T', ' '); // Current datetime
+
+    if (!content) {
+        res.send({ error: "Content is empty" });
+        return;
+    }
 
     // Perform a query to insert a new comment for the specified post by postId
-    const query = `INSERT INTO comments (Id_user, Id_post, content) VALUES (?, ?, ?)`;
-    const values = [userId, postId, content];
+    const query = `INSERT INTO comments (Id_user, Id_post, content, datetime) VALUES (?, ?, ?, ?)`;
+    const values = [userId, postId, content, datetime];
     database.query(query, values)
         .then(results => {
             res.send({ error: '', commentId: results.insertId }); // Success with the inserted commentId

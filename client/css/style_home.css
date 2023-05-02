@@ -113,6 +113,8 @@ body, html {
     flex: 3;
     background-color: #ebebfa;
     padding: 20px;
+    min-height: 0;
+    overflow: auto;
 }
 
 /* CSS for post blocks */
@@ -277,12 +279,14 @@ body, html {
 
 .post-image-section {
     width: 150px;
-    height: 150px;
+    height: auto;
+    max-height: 150px;
 }
 
 .post-image {
-    width: 100%;
-    height: 100%;
+    width: auto;
+    max-height: 150px;
+    max-width: 150px;
 }
 
 .upload-post-block {
@@ -359,6 +363,37 @@ textarea {
 .upload-post-button:active {
     background-color: #286090;
     box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* COMMENTS */
+.post-comment-block {
+    background-color: white;
+    margin-bottom: 10px;
+}
+
+.comments-section {
+    padding: 5px 0px 5px 30px;
+    background-color: #ededed;
+}
+
+.new-comment-block {
+    background-color: white;
+    padding: 5px;
+    max-width: 100%;
+    width: auto;
+}
+
+.comment-block {
+    margin-top: 10px;
+    background-color: white;
+    padding: 5px;
+    max-width: 100%;
+    width: auto;
+}
+
+.comment-text {
+    max-height: 200px;
+    height: auto;
 }
 
 /* Right section */

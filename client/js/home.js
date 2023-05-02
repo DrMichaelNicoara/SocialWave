@@ -184,21 +184,28 @@ Vue.component('post-block', {
         return {
             postVotes: 0,
             myVote: 0,
-            user: {
+            user: null,
+            currentDate: null,
+            postUser: {
                 id: null,
                 username: null,
                 avatar: null
-            }
+            },
+            comments: [],
+            newCommentContent: null
         }
     },
     created: function () {
-        const userData = this.getPostData(this.post.Id_user);
+        this.user = app.user;
+        this.currentDate = new Date();
+        const userData = this.getUserData(this.post.Id_user);
         userData.then(data => {
-            this.user.id = data.Id;
-            this.user.username = data.username;
-            this.user.avatar = data.profilePic;
+            this.postUser.id = data.Id;
+            this.postUser.username = data.username;
+            this.postUser.avatar = data.profilePic;
         });
         this.postVotes = this.post.votes;
+        this.getComments();
     },
     methods: {
         toggleFollow(Id_post_user) {
@@ -209,8 +216,8 @@ Vue.component('post-block', {
                     followerId: app.userId
                 })
                     .then(() => {
-                        if (this.user.username && !app.following.some(user => user.username === this.user.username)) {
-                            app.following.push({ username: this.user.username });
+                        if (this.postUser.username && !app.following.some(user => user.username === this.postUser.username)) {
+                            app.following.push({ username: this.postUser.username });
                         }
                         else {
                             throw new Error('Post user username is null');
@@ -244,7 +251,7 @@ Vue.component('post-block', {
             }
 
             // Emit an event to update the follow status in the parent component
-            this.$emit('follow-status-changed', { userId: this.user.id, isFollowed: this.parentIsFollowed, followButtonText: this.parentFollowButtonText });
+            this.$emit('follow-status-changed', { userId: this.postUser.id, isFollowed: this.parentIsFollowed, followButtonText: this.parentFollowButtonText });
         },
         formatDate(datetime) {
             const options = {
@@ -256,7 +263,7 @@ Vue.component('post-block', {
             };
             return new Date(datetime).toLocaleString('en-US', options);
         },
-        async getPostData(Id_post_user) {
+        async getUserData(Id_post_user) {
             try {
                 const response = await axios.get(`http://localhost:3000/users/${Id_post_user}`);
                 return response.data;
@@ -296,40 +303,133 @@ Vue.component('post-block', {
                 .catch(error => {
                     console.error(error);
                 });
+        },
+        async getComments() {
+            try {
+                const response = await axios.get(`http://localhost:3000/posts/${this.post.Id}/comments`);
+                response.data.forEach(comment => {
+
+                    // Get the user's data
+                    const userData = this.getUserData(comment.Id_user);
+
+                    userData.then(user => {
+                        this.comments.push({
+                            username: user.username,
+                            profilePic: user.profilePic,
+                            content: comment.content,
+                            datetime: comment.datetime
+                        });
+                    });
+                })
+            } catch (error) {
+                console.error('Error getting comments:', error);
+            }
+        },
+        addComment() {
+            // Create a new comment object with the current user's ID, post ID, and content
+            const newComment = {
+                userId: this.user.Id,
+                content: this.newCommentContent
+            };
+
+            // Send a POST request to the API with the new comment data
+            axios.post(`http://localhost:3000/posts/${this.post.Id}/comments`, newComment)
+                .then(response => {
+                    // Add the comment in the post's comments
+                    this.comments.push({
+                        username: this.user.username,
+                        profilePic: this.user.profilePic,
+                        content: this.newCommentContent,
+                        datetime: new Date().toISOString().slice(0, 19).replace('T', ' ') // Current datetime
+                    })
+                })
+                .catch(error => {
+                    // Handle error
+                    console.error('Error adding comment:', error);
+                });
+        },
+        autoResize(event) {
+            const textarea = event.target;
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + "px";
         }
     },
     template: `
-    <div class="post-block">
-      <div class="post-arrow-section">
-        <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow" :class="{ 'upvoted': myVote === 1 }" @click="upvote">
-        <span class="vote-count" :class="{ 'blue': myVote !== 0 }">{{ postVotes }}</span>
-        <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180" :class="{ 'upvoted': myVote === -1 }" @click="downvote">
-      </div>
-      <div class="post-content-section">
-        <div class="post-user-section">
-          <div class="post-user-avatar">
-            <img class="avatar-img" :src="user.avatar ? user.avatar : 'resources/default.jpg'" alt="User Avatar">
+    <div class="post-comment-block">
+	    <div class="post-block">
+          <div class="post-arrow-section">
+            <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow" :class="{ 'upvoted': myVote === 1 }" @click="upvote">
+            <span class="vote-count" :class="{ 'blue': myVote !== 0 }">{{ postVotes }}</span>
+            <img src="resources/upvote.png" alt="Downvote" class="post-arrow down-arrow rotate-180" :class="{ 'upvoted': myVote === -1 }" @click="downvote">
           </div>
-          <div class="post-details">
-            <div class="post-user-details">
-                <h4>{{ user.username }}</h4>
-                <button class="follow-btn" :class="{ active: parentIsFollowed }" @click="toggleFollow(post.Id_user)">{{ parentFollowButtonText }}</button>
+          <div class="post-content-section">
+            <div class="post-user-section">
+              <div class="post-user-avatar">
+                <img class="avatar-img" :src="postUser.avatar ? postUser.avatar : 'resources/default.jpg'" alt="User Avatar">
+              </div>
+              <div class="post-details">
+                <div class="post-user-details">
+                    <h4>{{ postUser.username }}</h4>
+                    <button class="follow-btn" :class="{ active: parentIsFollowed }" @click="toggleFollow(post.Id_user)">{{ parentFollowButtonText }}</button>
+                </div>
+                <div class="post-date-section">
+                  <p>Published on {{ formatDate(post.datetime) }}</p>
+                </div>
+              </div>
             </div>
-            <div class="post-date-section">
-              <p>Published on {{ formatDate(post.datetime) }}</p>
+            <div class="post-title-section">
+              <h2>{{ post.title }}</h2>
+            </div>
+            <div class="post-content">
+              <p class="post-text">{{ post.content }}</p>
+            </div>
+            <div class="post-image-section" v-if="post.image !== null">
+              <img class="post-image" :src="post.image" alt="Post Image">
             </div>
           </div>
         </div>
-        <div class="post-title-section">
-          <h2>{{ post.title }}</h2>
-        </div>
-        <div class="post-content">
-          <p class="post-text">{{ post.content }}</p>
-        </div>
-        <div class="post-image-section" v-if="post.image !== null">
-          <img class="post-image" :src="post.image" alt="Post Image">
-        </div>
-      </div>
+	    <div class="comments-section">
+	      <!-- Add new comment section -->
+	      <div class="post-content-section new-comment-block">
+		    <div class="post-user-section">
+		      <div class="post-user-avatar">
+                <img class="avatar-img" :src="user.profilePic ? user.profilePic : 'resources/default.jpg'" alt="User Avatar">
+              </div>
+            <div class="post-details">
+		      <div class="post-user-details">
+			    <h4>{{ user.username }}</h4>
+		      </div>
+             <div class="post-date-section">
+                 <p>Published on {{ formatDate(currentDate) }}</p>
+             </div>
+            </div>
+		    </div>
+		    <div class="comment-input-section">
+		      <textarea class="post-inputs" v-model="newCommentContent" placeholder="Add a comment" @input="autoResize"></textarea>
+		      <button class="upload-post-button" @click="addComment">Post</button>
+		    </div>
+	      </div>
+
+	      <!-- Existing comments section -->
+          <div class="post-content-section comment-block" v-for="comment in comments" :key="comment.Id">
+		    <div class="post-user-section">
+		      <div class="post-user-avatar">
+                <img class="avatar-img" :src="comment.profilePic ? comment.profilePic : 'resources/default.jpg'" alt="User Avatar">
+              </div>
+            <div class="post-details">
+		      <div class="post-user-details">
+			    <h4>{{ comment.username }}</h4>
+		      </div>
+             <div class="post-date-section">
+                 <p>Published on {{ formatDate(comment.datetime) }}</p>
+             </div>
+            </div>
+		    </div>
+		    <div class="comment-input-section">
+              <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
+            </div>
+	      </div>
+	    </div>
     </div>
   `
 });
