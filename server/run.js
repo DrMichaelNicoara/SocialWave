@@ -57,8 +57,13 @@ api.post('/signup', function (req, res) {
         errors.push("Phone number must be 10 digits long and contain only digits.");
     }
 
-    // Check if username already exists
     const username = req.body.username;
+    // Validate username
+    if (username.indexOf(' ') !== -1) {
+        errors.push("Username cannot contains spaces.")
+    }
+
+    // Check if username already exists
     const checkUsernameQuery = `SELECT * FROM users WHERE username = ?`;
     database.query(checkUsernameQuery, [username])
         .then(results => {
@@ -100,7 +105,7 @@ api.post('/signup', function (req, res) {
 api.get('/following/:userId', function (req, res) {
     const userId = req.params.userId;
     // Perform a query to get all the users the specified user is following
-    const query = `SELECT u.username FROM follows f
+    const query = `SELECT u.Id, u.username FROM follows f
                    INNER JOIN users u ON f.Id_user = u.Id
                    WHERE f.Id_follower = ?`;
     database.query(query, [userId])
@@ -117,7 +122,7 @@ api.get('/followers/:userId', function (req, res) {
     const userId = req.params.userId;
 
     // Perform a query to get all the users that follow the specified user
-    const query = `SELECT u.username FROM follows f
+    const query = `SELECT u.Id, u.username FROM follows f
                    INNER JOIN users u ON f.Id_follower = u.Id
                    WHERE f.Id_user = ?`;
     database.query(query, [userId])
@@ -388,12 +393,13 @@ api.get('/users/:userId/notifications', function (req, res) {
 // Create a new notification for a user by userId
 api.post('/users/:userId/notifications', function (req, res) {
     const userId = req.params.userId;
+    const title = req.body.title;
     const content = req.body.content;
-    const datetime = new Date(); // Current datetime
+    const datetime = new Date().toISOString().slice(0, 19).replace('T', ' '); // Current datetime
 
     // Perform a query to insert a new notification for the specified user by userId
-    const query = `INSERT INTO notifications (Id_user, content, datetime) VALUES (?, ?, ?)`;
-    const values = [userId, content, datetime];
+    const query = `INSERT INTO notifications (Id_user, title, content, datetime) VALUES (?, ?, ?, ?)`;
+    const values = [userId, title, content, datetime];
     database.query(query, values)
         .then(results => {
             res.send({ error: '', notificationId: results.insertId }); // Success with the inserted notificationId

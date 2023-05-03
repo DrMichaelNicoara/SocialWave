@@ -6,13 +6,15 @@
 </head>
 <body>
     <div class="title-section">
-        <img src="resources/logo.png" alt="SocialWave Logo" class="logo-image">
+        <a :href=`home.html?userId=${userId}`>
+            <img src="resources/logo.png" alt="SocialWave Logo" class="logo-image">
+        </a>
         <a href="index.html" class="logout-btn">Log Out</a>
     </div>
     <div class="container" id="app">
         <div class="left-section">
             <!-- Button to go to profile.html -->
-            <a href="profile.html" class="profile-btn">My Profile</a>
+            <a :href=`profile.html?userId=${userId}` class="profile-btn">My Profile</a>
             <!-- Dropdown for Following -->
             <button class="dropdown-btn" @click="toggleFollowing">Following</button>
             <div class="dropdown-content" v-show="showFollowing">
@@ -63,19 +65,7 @@
         </div>
         <div class="right-section">
             <div class="notification-blocks">
-                <div class="notification-block">
-                    <h3>Notification 1</h3>
-                    <p>Notification 1 content</p>
-                </div>
-                <div class="notification-block">
-                    <h3>Notification 2</h3>
-                    <p>Notification 2 content</p>
-                </div>
-                <div class="notification-block">
-                    <h3>Notification 3</h3>
-                    <p>Notification 3 content</p>
-                </div>
-                <!-- Add more notification blocks as needed -->
+                <notification v-for="notification in notifications" :key="notification.Id" :title="notification.title" :content="notification.content" />
             </div>
         </div>
     </div>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SocialWave</title>
+    <link rel="stylesheet" href="css/style_profile.css">
+</head>
+<body>
+    <div class="title-section">
+        <a :href=`profile.html?userId=${userId}`>
+            <img src="resources/logo.png" alt="SocialWave Logo" class="logo-image">
+        </a>
+        <a href="index.html" class="logout-btn">Log Out</a>
+    </div>
+    <div id="app">
+        <div class="wrapper attr_all">
+            <div class="left attr_all">
+                <img :src="user.profilePic ? user.profilePic : 'resources/default.jpg'" alt="User Picture" width="100">
+                <h4>{{ user.username }}</h4>
+            </div>
+            <div class="right attr_all">
+                <div class="info attr_all">
+                    <h3 class="attr_all">Information</h3>
+                    <div class="info_data attr_all">
+                        <div class="data attr_all">
+                            <h4 class="attr_all">First Name</h4>
+                            <p  class="attr_all">{{ user.firstName }}</p>
+                        </div>
+                        <div class="data attr_all">
+                            <h4 class="attr_all">Last Name</h4>
+                            <p class="attr_all">{{ user.lastName }}</p>
+                        </div>
+                    </div>
+                    <div class="info_data attr_all">
+                        <div class="data attr_all">
+                            <h4 class="attr_all">Email</h4>
+                            <p class="attr_all">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <div class="info_data attr_all">
+                        <div class="data attr_all">
+                            <h4 class="attr_all">Address</h4>
+                            <p class="attr_all">{{ user.address }}</p>
+                        </div>
+                    </div>
+                    <div class="info_data attr_all">
+                        <div class="data attr_all">
+                            <h4 class="attr_all">Phone Number</h4>
+                            <p class="attr_all">{{ user.phoneNumber }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="my-posts-section">
+            <div class="my-posts-label">
+                <h1>My Posts</h1>
+            </div>
+            <div class="post-feed">
+                <post-block v-for="(post, index) in posts" :post="post" :key="index" @follow-status-changed="updateFollowStatus" :parent-is-followed="post.parentIsFollowed" :parent-follow-button-text="post.parentFollowButtonText"></post-block>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="libs/vue.js"></script>
+    <script type="text/javascript" src="libs/axios.js"></script>
+    <script type="text/javascript" src="js/profile.js"></script>
+</body>
+</html>

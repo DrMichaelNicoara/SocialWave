@@ -8,14 +8,7 @@ var app = new Vue({
         showFollowers: false, // Initialize showFollowers to false
         posts: [],
         notifications: [],
-
-        // New post data
-        user: {},
-        currentDate: '',
-        title: '',
-        content: '',
-        imageSrc: '',
-        imageData: null
+        user: {}
     },
     mounted: function () {
         // Get the URL search parameters
@@ -30,8 +23,6 @@ var app = new Vue({
             .catch(error => {
                 console.error(error);
             });
-        this.currentDate = new Date();
-        this.imageSrc = "resources/upload-image-icon.png";
 
         // Fetch the list of following and followers data from the API endpoints
         fetch(`http://localhost:3000/following/${this.userId}`) // Use this.userId to access the extracted user id
@@ -60,23 +51,8 @@ var app = new Vue({
 
         // Update the list of posts
         this.updatePosts();
-
-        // Get all the notifications
-        axios.get(`http://localhost:3000/users/${this.userId}/notifications`)
-            .then(results => {
-                this.notifications = results.data;
-            })
-            .catch(error => {
-                console.error(error);
-            });
     },
     methods: {
-        toggleFollowing: function () {
-            this.showFollowing = !this.showFollowing; // Toggle the value of showFollowing
-        },
-        toggleFollowers: function () {
-            this.showFollowers = !this.showFollowers; // Toggle the value of showFollowers
-        },
         updatePosts() {
             const userId = this.userId;
             axios.get(`http://localhost:3000/posts/notfrom/${userId}`)
@@ -141,62 +117,6 @@ var app = new Vue({
                 minute: 'numeric'
             };
             return new Date(datetime).toLocaleString('en-US', options);
-        },
-        onImageSelected(event) {
-            const file = event.target.files[0];
-            this.imageSrc = URL.createObjectURL(file);
-            const imageIcon = document.querySelector('.upload-image-icon');
-            imageIcon.style.maxHeight = '150px';
-
-            if (this.imageSrc) {
-                fetch(this.imageSrc)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const reader = new FileReader();
-                        reader.readAsDataURL(blob);
-                        reader.onload = () => {
-                            this.imageData = reader.result;
-                        };
-                    });
-            }
-        },
-        autoResize(event) {
-            const textarea = event.target;
-            textarea.style.height = 'auto';
-            textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + "px";
-        },
-        uploadPost() {
-            if (!this.userId || !this.title || !this.content) return;
-
-            axios.post("http://localhost:3000/posts", {
-                'Id_user': this.userId,
-                'title': this.title,
-                'content': this.content,
-                'image': this.imageData
-            })
-            .catch(error => {
-                console.log(error);
-            })
-
-            // Empty the post
-            this.title = '';
-            this.content = '';
-            this.currentDate = new Date();
-            this.imageSrc = "resources/upload-image-icon.png";
-            const imageIcon = document.querySelector('.upload-image-icon');
-            imageIcon.style.maxHeight = '30px';
-
-            // Send a notification to all the followers
-            const title = 'New post from one of your followers';
-            const content = `${this.user.username} just made a new post.`;
-
-            this.followers.forEach(follower => {
-                const userId = follower.Id;
-                axios.post(`http://localhost:3000/users/${userId}/notifications`, { title, content })
-                    .catch(error => {
-                        console.error(error);
-                    });
-            })
         }
     }
 });
@@ -494,30 +414,3 @@ Vue.component('post-block', {
     </div>
   `
 });
-
-Vue.component('notification', {
-    props: {
-        title: String,
-        content: String
-    },
-    computed: {
-        firstWord() {
-            const words = this.content.split(' ');
-            return words.length > 0 ? words[0] : '';
-        },
-        restOfContent() {
-            const words = this.content.split(' ');
-            return words.slice(1).join(' ');
-        }
-    },
-    template: `
-    <div class="notification-block">
-      <h3>{{ title }}</h3>
-      <p>
-        <span style="color: blue">{{ firstWord }}</span>
-        {{ restOfContent }}
-      </p>
-    </div>
-  `
-});
-
