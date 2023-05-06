@@ -227,6 +227,26 @@ api.get('/posts/notfrom/:userId', function (req, res) {
         });
 });
 
+// Get all posts from a specific user
+api.get('/posts/from/:userId', function (req, res) {
+    const userId = req.params.userId;
+    // Perform a query to get all posts which are not from the specified user
+    const query = `SELECT * FROM posts WHERE Id_user = ?`;
+    database.query(query, [userId])
+        .then(results => {
+            results.forEach(result => {
+                if (result.image) {
+                    const buffer = new Buffer(result.image);
+                    result.image = buffer.toString();
+                }
+            });
+            res.send(results);
+        })
+        .catch(err => {
+            res.send({ error: err.message });
+        });
+});
+
 // Post a new post
 api.post('/posts', function (req, res) {
     const userId = req.body.Id_user;

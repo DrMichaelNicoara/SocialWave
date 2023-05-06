@@ -458,7 +458,6 @@ Vue.component('post-block', {
             <div class="post-details">
 		      <div class="post-user-details">
 			    <h4>{{ comment.username }}</h4>
-                <button class="follow-btn" v-if="comment.username != user.username" :class="{ active: parentIsFollowed }" @click="toggleFollow(comment.Id_user)">{{ parentFollowButtonText }}</button>
 		      </div>
              <div class="post-date-section">
                  <p>Published on {{ formatDate(comment.datetime) }}</p>
@@ -521,3 +520,14 @@ Vue.component('notification', {
   `
 });
 
+new Vue({
+    el: '.title-section',
+    data: {
+        userId: null
+    },
+    mounted() {
+        // Retrieve userId parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        this.userId = urlParams.get('userId');
+    }
+});

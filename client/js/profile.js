@@ -55,7 +55,7 @@ var app = new Vue({
     methods: {
         updatePosts() {
             const userId = this.userId;
-            axios.get(`http://localhost:3000/posts/notfrom/${userId}`)
+            axios.get(`http://localhost:3000/posts/from/${userId}`)
                 .then(async response => {
                     // Update the 'posts' data property with the fetched data
                     this.posts = response.data;
@@ -350,7 +350,6 @@ Vue.component('post-block', {
               <div class="post-details">
                 <div class="post-user-details">
                     <h4>{{ postUser.username }}</h4>
-                    <button class="follow-btn" :class="{ active: parentIsFollowed }" @click="toggleFollow(post.Id_user)">{{ parentFollowButtonText }}</button>
                 </div>
                 <div class="post-date-section">
                   <p>Published on {{ formatDate(post.datetime) }}</p>
@@ -413,4 +412,16 @@ Vue.component('post-block', {
 	    </div>
     </div>
   `
+});
+
+new Vue({
+    el: '.title-section',
+    data: {
+        userId: null
+    },
+    mounted() {
+        // Retrieve userId parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        this.userId = urlParams.get('userId');
+    }
 });
