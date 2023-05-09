@@ -143,6 +143,7 @@ body {
     margin-bottom: 10px;
     background-color: white;
     padding: 5px;
+    align-items: center;
 }
 
 .post-arrow-section {
@@ -229,34 +230,6 @@ body {
     margin-top: -15px;
 }
 
-.follow-btn {
-    margin: 10px;
-    color: #3399FF;
-    font-family: "Helvetica";
-    font-size: 10pt;
-    background-color: #ffffff;
-    border: 1px solid;
-    border-color: #3399FF;
-    border-radius: 3px;
-    width: 85px;
-    height: 30px;
-    top: 50px;
-    left: 50px;
-    cursor: hand;
-}
-
-.follow-btn:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.follow-btn.active {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-}
-
-
 .post-user-avatar {
     width: 50px;
     height: 50px;
@@ -331,6 +304,28 @@ textarea {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 10px;
+}
+
+.the-whole-comment-section {
+    width: 100%;
+}
+
+.delete-image {
+    width: 50px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.delete-post-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.comment-delete-button-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 /* COMMENTS */

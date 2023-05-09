@@ -286,24 +286,6 @@ api.put('/postVotes/:postId', function (req, res) {
         });
 });
 
-// Update a post by postId
-api.put('/posts/:postId', function (req, res) {
-    const postId = req.params.postId;
-    const title = req.body.title || '';
-    const content = req.body.content;
-    const image = req.body.image || '';
-
-    // Perform a query to update the specified post by postId
-    const query = `UPDATE posts SET title = ?, content = ?, image = ? WHERE Id = ?`;
-    const values = [title, content, image, postId];
-    database.query(query, values)
-        .then(results => {
-            res.send({ error: '' }); // Success
-        })
-        .catch(err => {
-            res.send({ error: err.message });
-        });
-});
 
 // Delete a post by postId
 api.delete('/posts/:postId', function (req, res) {

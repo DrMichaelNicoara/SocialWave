@@ -282,7 +282,7 @@ Vue.component('post-block', {
                                 }
 
                                 // Send a notification to the post's user
-                                const userId = this.postUser.Id;
+                                const userId = this.postUser.id;
                                 const title = 'You have been unfollowed';
                                 const content = `${this.user.username} just unfollowed you.`;
 
@@ -361,6 +361,7 @@ Vue.component('post-block', {
 
                     userData.then(user => {
                         this.comments.push({
+                            Id: comment.Id,
                             Id_user: user.Id,
                             username: user.username,
                             profilePic: user.profilePic,
@@ -412,6 +413,20 @@ Vue.component('post-block', {
             const textarea = event.target;
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + "px";
+        },
+        deleteComment(Id_comment) {
+            axios.delete(`http://localhost:3000/comments/${Id_comment}`)
+                .then(() => {
+                    const index = this.comments.findIndex(comment => comment.Id === Id_comment);
+
+                    // Remove the dictionary from the list using the splice() method
+                    if (index !== -1) {
+                        this.comments.splice(index, 1);
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
     },
     template: `
@@ -451,23 +466,32 @@ Vue.component('post-block', {
 	    <div class="comments-section">
 	      <!-- Existing comments section -->
           <div class="post-content-section comment-block" v-for="comment in comments" :key="comment.Id">
-		    <div class="post-user-section">
-		      <div class="post-user-avatar">
-                <img class="avatar-img" :src="comment.profilePic ? comment.profilePic : 'resources/default.jpg'" alt="User Avatar">
-              </div>
-            <div class="post-details">
-		      <div class="post-user-details">
-			    <h4>{{ comment.username }}</h4>
-		      </div>
-             <div class="post-date-section">
-                 <p>Published on {{ formatDate(comment.datetime) }}</p>
-             </div>
+            <div class="comment-delete-button-section">
+                <div class="the-whole-comment-section">
+		            <div class="post-user-section">
+		              <div class="post-user-avatar">
+                        <img class="avatar-img" :src="comment.profilePic ? comment.profilePic : 'resources/default.jpg'" alt="User Avatar">
+                      </div>
+                    <div class="post-details">
+		              <div class="post-user-details">
+			            <h4>{{ comment.username }}</h4>
+		              </div>
+                     <div class="post-date-section">
+                         <p>Published on {{ formatDate(comment.datetime) }}</p>
+                     </div>
+                    </div>
+		            </div>
+		            <div class="comment-input-section">
+                      <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
+                    </div>
+	              </div>
+                   <div v-if="comment.Id_user == user.Id">
+                    <button @click="deleteComment(comment.Id)" class="delete-post-button">
+                        <img src="resources/delete-icon.png" class="delete-image">
+                    </button>
+                   </div>
+                </div>
             </div>
-		    </div>
-		    <div class="comment-input-section">
-              <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
-            </div>
-	      </div>
 
         <!-- Add new comment section -->
 	      <div class="post-content-section new-comment-block">
@@ -496,8 +520,14 @@ Vue.component('post-block', {
 
 Vue.component('notification', {
     props: {
+        id: Number,
         title: String,
         content: String
+    },
+    data() {
+        return {
+            showNotification: true
+        }
     },
     computed: {
         firstWord() {
@@ -509,13 +539,31 @@ Vue.component('notification', {
             return words.slice(1).join(' ');
         }
     },
+    methods: {
+        deleteNotification() {
+            axios.delete(`http://localhost:3000/notifications/${this.id}`)
+                .then(() => {
+                    this.showNotification = false;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    },
     template: `
-    <div class="notification-block">
-      <h3>{{ title }}</h3>
-      <p>
-        <span style="color: blue">{{ firstWord }}</span>
-        {{ restOfContent }}
-      </p>
+    <div class="notification-block" v-if="showNotification">
+      <div>
+        <h3>{{ title }}</h3>
+        <p>
+          <span style="color: blue">{{ firstWord }}</span>
+          {{ restOfContent }}
+        </p>
+      </div>
+      <div class="notification-delete-block">
+        <button @click="deleteNotification" class="notification-delete-button">
+            <img class="notification-delete-image" src="resources/delete-icon.png">
+        </button>
+      </div>
     </div>
   `
 });

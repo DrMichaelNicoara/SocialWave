@@ -60,12 +60,12 @@
                 </div>
             </div>
             <div class="post-feed">
-                <post-block v-for="(post, index) in posts" :post="post" :key="index" @follow-status-changed="updateFollowStatus" :parent-is-followed="post.parentIsFollowed" :parent-follow-button-text="post.parentFollowButtonText"></post-block>
+                <post-block v-for="(post, index) in posts" :post="post" :key="index" @follow-status-changed="updateFollowStatus" :parent-is-followed="post.parentIsFollowed" :parent-follow-button-text="post.parentFollowButtonText" />
             </div>
         </div>
         <div class="right-section">
             <div class="notification-blocks">
-                <notification v-for="notification in notifications" :key="notification.Id" :title="notification.title" :content="notification.content" />
+                <notification v-for="notification in notifications" :key="notification.Id" :id="notification.Id" :title="notification.title" :content="notification.content" />
             </div>
         </div>
     </div>

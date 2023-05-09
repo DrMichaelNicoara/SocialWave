@@ -222,7 +222,7 @@ body, html {
     height: 30px;
     top: 50px;
     left: 50px;
-    cursor: hand;
+    cursor: pointer;
 }
 
 .follow-btn:hover {
@@ -397,11 +397,35 @@ textarea {
     height: auto;
 }
 
+.the-whole-comment-section {
+    width: 100%;
+}
+
+.delete-image {
+    width: 50px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.delete-post-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.comment-delete-button-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 /* Right section */
 .right-section {
     flex: 1;
     background-color: #ffe6e6;
     padding: 20px;
+    min-height: 0;
+    overflow: auto;
 }
 
 /* CSS for notification blocks */
@@ -414,6 +438,9 @@ textarea {
     border: 1px solid #ddd;
     padding: 10px;
     margin-bottom: 10px;
+    display: flex; /* Add flex display */
+    justify-content: space-between; /* Add space between elements */
+    align-items: center;
 }
 
 .notification-block h3 {
@@ -422,4 +449,20 @@ textarea {
 
 .notification-block p {
     margin-bottom: 0;
+}
+
+.notification-delete-block {
+    margin-left: 10px;
+}
+
+.notification-delete-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.notification-delete-image {
+    width: 50px;
+    margin-top: auto;
+    margin-bottom: auto;
 }

@@ -139,7 +139,8 @@ Vue.component('post-block', {
                 avatar: null
             },
             comments: [],
-            newCommentContent: null
+            newCommentContent: null,
+            showPost: true
         }
     },
     created: function () {
@@ -281,6 +282,7 @@ Vue.component('post-block', {
 
                     userData.then(user => {
                         this.comments.push({
+                            Id: comment.Id,
                             Id_user: user.Id,
                             username: user.username,
                             profilePic: user.profilePic,
@@ -332,10 +334,34 @@ Vue.component('post-block', {
             const textarea = event.target;
             textarea.style.height = 'auto';
             textarea.style.height = (textarea.scrollHeight > 200 ? 200 : textarea.scrollHeight) + "px";
+        },
+        deletePost() {
+            axios.delete(`http://localhost:3000/posts/${this.post.Id}`)
+                .then(() => {
+                    this.showPost = false;
+                    this.delete();
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        deleteComment(Id_comment) {
+            axios.delete(`http://localhost:3000/comments/${Id_comment}`)
+                .then(() => {
+                    const index = this.comments.findIndex(comment => comment.Id === Id_comment);
+
+                    // Remove the dictionary from the list using the splice() method
+                    if (index !== -1) {
+                        this.comments.splice(index, 1);
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
     },
     template: `
-    <div class="post-comment-block">
+    <div class="post-comment-block" v-if="showPost">
 	    <div class="post-block">
           <div class="post-arrow-section">
             <img src="resources/upvote.png" alt="Upvote" class="post-arrow up-arrow" :class="{ 'upvoted': myVote === 1 }" @click="upvote">
@@ -366,26 +392,39 @@ Vue.component('post-block', {
               <img class="post-image" :src="post.image" alt="Post Image">
             </div>
           </div>
+        <div>
+            <button @click="deletePost" class="delete-post-button">
+                <img src="resources/delete-icon.png" class="delete-image">
+            </button>
+        </div>
         </div>
 	    <div class="comments-section">
 	      <!-- Existing comments section -->
           <div class="post-content-section comment-block" v-for="comment in comments" :key="comment.Id">
-		    <div class="post-user-section">
-		      <div class="post-user-avatar">
-                <img class="avatar-img" :src="comment.profilePic ? comment.profilePic : 'resources/default.jpg'" alt="User Avatar">
-              </div>
-            <div class="post-details">
-		      <div class="post-user-details">
-			    <h4>{{ comment.username }}</h4>
-                <button class="follow-btn" v-if="comment.username != user.username" :class="{ active: parentIsFollowed }" @click="toggleFollow(comment.Id_user)">{{ parentFollowButtonText }}</button>
-		      </div>
-             <div class="post-date-section">
-                 <p>Published on {{ formatDate(comment.datetime) }}</p>
-             </div>
-            </div>
-		    </div>
-		    <div class="comment-input-section">
-              <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
+            <div class="comment-delete-button-section">
+                <div class="the-whole-comment-section">
+		            <div class="post-user-section">
+		                <div class="post-user-avatar">
+                          <img class="avatar-img" :src="comment.profilePic ? comment.profilePic : 'resources/default.jpg'" alt="User Avatar">
+                        </div>
+                        <div class="post-details">
+		                  <div class="post-user-details">
+			                <h4>{{ comment.username }}</h4>
+		                  </div>
+                         <div class="post-date-section">
+                             <p>Published on {{ formatDate(comment.datetime) }}</p>
+                         </div>
+                        </div>
+		            </div>
+		            <div class="comment-input-section">
+                      <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
+                    </div>
+                </div>
+                <div v-if="comment.Id_user == user.Id">
+                    <button @click="deleteComment(comment.Id)" class="delete-post-button">
+                        <img src="resources/delete-icon.png" class="delete-image">
+                    </button>
+                </div>
             </div>
 	      </div>
 
