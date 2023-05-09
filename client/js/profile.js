@@ -4,6 +4,7 @@ var app = new Vue({
         following: [], // Array to store the list of users being followed
         followers: [], // Array to store the list of users who are followers
         userId: null, // Initialize userId to null
+        owner: null,
         showFollowing: false, // Initialize showFollowing to false
         showFollowers: false, // Initialize showFollowers to false
         posts: [],
@@ -15,6 +16,7 @@ var app = new Vue({
         const urlSearchParams = new URLSearchParams(window.location.search);
         // Extract the value of the 'userId' parameter from the search parameters
         this.userId = urlSearchParams.get('userId');
+        this.owner = urlSearchParams.get('owner');
 
         axios.get(`http://localhost:3000/users/${this.userId}`)
             .then(response => {
@@ -132,6 +134,7 @@ Vue.component('post-block', {
             postVotes: 0,
             myVote: 0,
             user: null,
+            owner: null,
             currentDate: null,
             postUser: {
                 id: null,
@@ -145,6 +148,7 @@ Vue.component('post-block', {
     },
     created: function () {
         this.user = app.user;
+        this.owner = app.owner;
         this.currentDate = new Date();
         const userData = this.getUserData(this.post.Id_user);
         userData.then(data => {
@@ -393,7 +397,7 @@ Vue.component('post-block', {
             </div>
           </div>
         <div>
-            <button @click="deletePost" class="delete-post-button">
+            <button @click="deletePost" class="delete-post-button" v-if="owner == post.Id_user">
                 <img src="resources/delete-icon.png" class="delete-image">
             </button>
         </div>
@@ -420,7 +424,7 @@ Vue.component('post-block', {
                       <textarea readonly class="post-inputs comment-text">{{ comment.content }}</textarea>
                     </div>
                 </div>
-                <div v-if="comment.Id_user == user.Id">
+                <div v-if="comment.Id_user == owner">
                     <button @click="deleteComment(comment.Id)" class="delete-post-button">
                         <img src="resources/delete-icon.png" class="delete-image">
                     </button>
@@ -456,11 +460,13 @@ Vue.component('post-block', {
 new Vue({
     el: '.title-section',
     data: {
-        userId: null
+        userId: null,
+        owner: null
     },
     mounted() {
         // Retrieve userId parameter from URL
         const urlParams = new URLSearchParams(window.location.search);
         this.userId = urlParams.get('userId');
+        this.owner = urlParams.get('owner');
     }
 });

@@ -182,6 +182,7 @@ var app = new Vue({
             this.title = '';
             this.content = '';
             this.currentDate = new Date();
+            this.imageData = null;
             this.imageSrc = "resources/upload-image-icon.png";
             const imageIcon = document.querySelector('.upload-image-icon');
             imageIcon.style.maxHeight = '30px';

@@ -14,18 +14,18 @@
     <div class="container" id="app">
         <div class="left-section">
             <!-- Button to go to profile.html -->
-            <a :href=`profile.html?userId=${userId}` class="profile-btn">My Profile</a>
+            <a :href="`profile.html?userId=${userId}&owner=${userId}`" class="profile-btn">My Profile</a>
             <!-- Dropdown for Following -->
             <button class="dropdown-btn" @click="toggleFollowing">Following</button>
             <div class="dropdown-content" v-show="showFollowing">
                 <!-- Dropdown items for Following -->
-                <a v-for="user in following" :href=`profile.html?userId=${user.Id}` :key="user.id">{{ user.username }}</a>
+                <a v-for="user in following" :href="`profile.html?userId=${user.Id}&owner=${userId}`" :key="user.id">{{ user.username }}</a>
             </div>
             <!-- Dropdown for Followers -->
             <button class="dropdown-btn" @click="toggleFollowers">Followers</button>
             <div class="dropdown-content" v-show="showFollowers">
                 <!-- Dropdown items for Followers -->
-                <a v-for="user in followers" :href=`profile.html?userId=${user.Id}` :key="user.id">{{ user.username }}</a>
+                <a v-for="user in followers" :href="`profile.html?userId=${user.Id}&owner=${userId}`" :key="user.id">{{ user.username }}</a>
             </div>
         </div>
         <div class="middle-section">
