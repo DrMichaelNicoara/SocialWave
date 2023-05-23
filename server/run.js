@@ -211,7 +211,7 @@ api.delete('/follow', function (req, res) {
 api.get('/posts/notfrom/:userId', function (req, res) {
     const userId = req.params.userId;
     // Perform a query to get all posts which are not from the specified user
-    const query = `SELECT * FROM posts WHERE Id_user != ? ORDER BY datetime ASC`;
+    const query = `SELECT * FROM posts WHERE Id_user != ? ORDER BY datetime DESC`;
     database.query(query, [userId])
         .then(results => {
             results.forEach(result => {
